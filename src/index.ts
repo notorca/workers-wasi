@@ -1,6 +1,6 @@
 export { traceImportsToConsole } from './helpers'
 import * as wasi from './snapshot_preview1'
-import { MemFS, _FS } from './memfs'
+import { MemFS, FS as FS } from './memfs'
 // @ts-ignore
 import { Asyncify } from '../deps/asyncify/asyncify.mjs'
 import {
@@ -92,12 +92,9 @@ export interface WASIOptions {
   streamStdio?: boolean
 
   /**
-   * Initial filesystem contents, currently used for testing with
-   * existing WASI test suites
-   * @internal
-   *
+   * Initial filesystem contents.
    */
-  fs?: _FS
+  fs?: FS
 }
 
 /**
@@ -434,4 +431,4 @@ export class WASI {
   }
 }
 
-export type { _FS }
+export type { FS as _FS }

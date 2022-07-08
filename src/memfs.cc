@@ -1110,16 +1110,22 @@ int32_t EXPORT(initialize_internal)(int32_t arg0, int32_t arg1) {
     state.fds.emplace(new_fd, make_preopen_fd(state.preopens.back()));
   }
 
-  REQUIRE(d.HasMember("fs"));
-  for (const auto& m : d["fs"].GetObject()) {
+  REQUIRE(d.HasMember("fsBlobAddrs"));
+  for (const auto& m : d["fsBlobAddrs"].GetObject()) {
     const auto* path = m.name.GetString();
     mkdirp(path);
+
+    const auto blob = m.value.GetObject();
+    REQUIRE(blob.HasMember("addr"));
+    REQUIRE(blob.HasMember("length"));
+
+    const auto addr = reinterpret_cast<const char*>(blob.FindMember("addr")->value.GetUint64());
+    const auto length = blob.FindMember("length")->value.GetUint();
 
     lfs_file_t file;
     LFS_REQUIRE(lfs_file_open(&state.lfs, &file, path,
                               LFS_O_WRONLY | LFS_O_CREAT | LFS_O_EXCL));
-    LFS_REQUIRE(lfs_file_write(&state.lfs, &file, m.value.GetString(),
-                               m.value.GetStringLength()));
+    LFS_REQUIRE(lfs_file_write(&state.lfs, &file, addr, length));
     LFS_REQUIRE(lfs_file_close(&state.lfs, &file));
   }
 

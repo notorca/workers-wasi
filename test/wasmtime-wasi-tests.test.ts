@@ -28,7 +28,7 @@ await withEnv(async (fixture: TestEnv) => {
       await fixture.exec({
         preopens: ['/tmp'],
         fs: {
-          '/tmp/.gitkeep': '',
+          '/tmp/.gitkeep': new Uint8Array(0),
         },
         asyncify: false,
         args: [file, '/tmp'],
