@@ -1110,8 +1110,8 @@ int32_t EXPORT(initialize_internal)(int32_t arg0, int32_t arg1) {
     state.fds.emplace(new_fd, make_preopen_fd(state.preopens.back()));
   }
 
-  REQUIRE(d.HasMember("fsBlobAddrs"));
-  for (const auto& m : d["fsBlobAddrs"].GetObject()) {
+  REQUIRE(d.HasMember("fs"));
+  for (const auto& m : d["fs"].GetObject()) {
     const auto* path = m.name.GetString();
     mkdirp(path);
 
@@ -1119,7 +1119,7 @@ int32_t EXPORT(initialize_internal)(int32_t arg0, int32_t arg1) {
     REQUIRE(blob.HasMember("addr"));
     REQUIRE(blob.HasMember("length"));
 
-    const auto addr = reinterpret_cast<const char*>(blob.FindMember("addr")->value.GetUint64());
+    const auto addr = reinterpret_cast<char*>(blob.FindMember("addr")->value.GetUint64());
     const auto length = blob.FindMember("length")->value.GetUint();
 
     lfs_file_t file;
@@ -1127,6 +1127,7 @@ int32_t EXPORT(initialize_internal)(int32_t arg0, int32_t arg1) {
                               LFS_O_WRONLY | LFS_O_CREAT | LFS_O_EXCL));
     LFS_REQUIRE(lfs_file_write(&state.lfs, &file, addr, length));
     LFS_REQUIRE(lfs_file_close(&state.lfs, &file));
+    free(addr);
   }
 
   REQUIRE(state.fds.emplace(0, make_stream_fd(__WASI_RIGHTS_FD_READ)).second);

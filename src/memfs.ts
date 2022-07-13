@@ -68,12 +68,12 @@ export class MemFS {
     const start = this.#instance.exports._start as Function
     start()
 
-    const fsBlobAddrs = Object.entries(fs).reduce((prev, [path, bytes]) => {
+    const allocatedFs = Object.entries(fs).reduce((prev, [path, bytes]) => {
       const addr = this.#copyFrom(new Uint8Array(bytes))
-      return { ...prev, [path]: { addr, length: new Uint8Array(bytes).byteLength } }
+      return { ...prev, [path]: { addr, length: bytes.byteLength } }
     }, {}) ?? {}
     const data = new TextEncoder().encode(
-      JSON.stringify({ preopens, fsBlobAddrs })
+      JSON.stringify({ preopens, fs: allocatedFs})
     )
 
     const initialize_internal = this.#instance.exports
