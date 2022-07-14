@@ -3,7 +3,7 @@ import { Buffer } from 'buffer'
 import { ExecOptions, ExecResult } from './driver/common'
 import fs from 'fs/promises'
 import path from 'path'
-import type { _FS } from '@cloudflare/workers-wasi'
+import type { FS } from '@cloudflare/workers-wasi'
 
 export class TestEnv {
   #mf: Miniflare
@@ -81,7 +81,7 @@ const recurseFiles = async (dir: string): Promise<string[]> => {
   ).flat()
 }
 
-export const readfs = async (dir: string): Promise<_FS> => {
+export const readfs = async (dir: string): Promise<FS> => {
   const prefix = path.dirname(dir)
   const files = await mapENOENT(async () => await recurseFiles(dir))
   if (files === undefined) {

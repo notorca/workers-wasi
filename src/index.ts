@@ -1,6 +1,6 @@
 export { traceImportsToConsole } from './helpers'
 import * as wasi from './snapshot_preview1'
-import { MemFS, FS as FS } from './memfs'
+import { MemFS, FS } from './memfs'
 // @ts-ignore
 import { Asyncify } from '../deps/asyncify/asyncify.mjs'
 import {
@@ -431,4 +431,4 @@ export class WASI {
   }
 }
 
-export type { FS as _FS }
+export type { FS }
