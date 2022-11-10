@@ -20,8 +20,8 @@ WASI_SDK_PATH := ./deps/wasi-sdk-16.0
 WASI_SYSROOT  := $(abspath ${WASI_SDK_PATH}/share/wasi-sysroot)
 
 export CC      := $(abspath ${WASI_SDK_PATH}/bin/clang) -target wasm32-wasi --sysroot=${WASI_SYSROOT}
-export CFLAGS  := -Oz -flto -I ./deps/rapidjson/include -I./deps/littlefs -fno-exceptions -include ./src/config.h
-export LDFLAGS := -lstdc++ -flto -Wl,--allow-undefined
+export CFLAGS  := -Oz -flto -I ./deps/rapidjson/include -I./deps/littlefs -fno-exceptions -include ./src/config.h -Wexit-time-destructors
+export LDFLAGS := -lstdc++ -flto -Wl,--allow-undefined -mexec-model=reactor
 export CXXFLAGS := -std=c++20
 
 WASM_OBJ := \
