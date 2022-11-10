@@ -832,7 +832,9 @@ struct Context {
                         REQUIRE_TYPED_FD(fd, LFS_TYPE_DIR, rights, false).path,
                         unresolved_path, result);
   }
-} state;
+};
+
+[[clang::no_destroy]]  Context state;
 
 template <class T>
 auto with_external_ciovs(CallFrame& frame, int32_t iovs_ptr, int32_t iovs_len,

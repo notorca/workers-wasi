@@ -65,7 +65,7 @@ export class MemFS {
     })
     this.exports = this.#instance.exports as unknown as wasi.SnapshotPreview1
 
-    const start = this.#instance.exports._start as Function
+    const start = this.#instance.exports.main as Function
     start()
 
     const allocatedFs = Object.entries(fs).reduce((prev, [path, bytes]) => {

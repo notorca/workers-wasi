@@ -1,7 +1,7 @@
 default: run-tests
 
 WASM_OPT   := ../build/binaryen/bin/wasm-opt
-WASI_SDK_PATH := ../deps/wasi-sdk-13.0
+WASI_SDK_PATH := ../deps/wasi-sdk-16.0
 WASI_SYSROOT  := $(abspath ${WASI_SDK_PATH}/share/wasi-sysroot)
 OUTPUT_DIR := ../build/test
 
@@ -87,4 +87,4 @@ $(BENCHMARK_DST)/%.wasm: $(WASI_SDK_PATH) $(WASM_OPT) $(BENCHMARK_SRC)/%.c
 
 $(CASES_DST)/%.wasm: $(WASI_SDK_PATH) $(WASM_OPT) $(CASES_SRC)/%.c
 	mkdir -p $(CASES_DST)
-	$(WASI_CC) -g $(WASI_LDFLAGS) cases/$*.c -o $(CASES_DST)/$*.wasm 
+	$(WASI_CC) -g $(WASI_LDFLAGS) cases/$*.c -o $(CASES_DST)/$*.wasm

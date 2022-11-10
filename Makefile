@@ -16,12 +16,12 @@ clean:
 	rm -rf ./node_modules/
 	rm -rf ./test/node_modules/
 
-WASI_SDK_PATH := ./deps/wasi-sdk-13.0
+WASI_SDK_PATH := ./deps/wasi-sdk-16.0
 WASI_SYSROOT  := $(abspath ${WASI_SDK_PATH}/share/wasi-sysroot)
 
 export CC      := $(abspath ${WASI_SDK_PATH}/bin/clang) -target wasm32-wasi --sysroot=${WASI_SYSROOT}
-export CFLAGS  := -Oz -flto -I ./deps/rapidjson/include -I./deps/littlefs -fno-exceptions -include ./src/config.h
-export LDFLAGS := -lstdc++ -flto -Wl,--allow-undefined
+export CFLAGS  := -Oz -flto -I ./deps/rapidjson/include -I./deps/littlefs -fno-exceptions -include ./src/config.h -Wexit-time-destructors
+export LDFLAGS := -lstdc++ -flto -Wl,--allow-undefined -mexec-model=reactor
 export CXXFLAGS := -std=c++20
 
 WASM_OBJ := \
@@ -55,7 +55,7 @@ dist/index.mjs: $(wildcard ./src/**) node_modules dist/memfs.wasm
 
 $(WASI_SDK_PATH):
 	mkdir -p $(@D)
-	curl -sLo wasi-sdk.tar.gz https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-13/wasi-sdk-13.0-linux.tar.gz
-	echo 'aea04267dd864a2f41e21f6cc43591b73dd8901e1ad4e87decf8c4b5905c73cf wasi-sdk.tar.gz' | sha256sum -c
+	curl -sLo wasi-sdk.tar.gz https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-16/wasi-sdk-16.0-linux.tar.gz
+	echo '10df3418485e60b9283c1132102f8d3ca34b4fbe8c4649e30282ee84fe42d788 wasi-sdk.tar.gz' | sha256sum -c
 	tar zxf wasi-sdk.tar.gz --touch -C deps
 	rm wasi-sdk.tar.gz
