@@ -99,7 +99,7 @@ class AsyncWritableStreamAdapter
       if (iov.byteLength === 0) {
         continue
       }
-      await this.#writer.write(iov)
+      await this.#writer.write(iov.slice())
       written += iov.byteLength
     }
     return written
