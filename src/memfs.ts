@@ -57,7 +57,6 @@ export class MemFS {
         },
       },
       wasi_snapshot_preview1: {
-        proc_exit: (_: number) => {},
         fd_seek: (): number => wasi.Result.ENOSYS,
         fd_write: (): number => wasi.Result.ENOSYS,
         fd_close: (): number => wasi.Result.ENOSYS,
@@ -65,7 +64,7 @@ export class MemFS {
     })
     this.exports = this.#instance.exports as unknown as wasi.SnapshotPreview1
 
-    const start = this.#instance.exports.main as Function
+    const start = this.#instance.exports._start as Function
     start()
 
     const allocatedFs = Object.entries(fs).reduce((prev, [path, bytes]) => {

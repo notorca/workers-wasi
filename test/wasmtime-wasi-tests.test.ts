@@ -3,12 +3,14 @@ import { withEnv, TestEnv, filesWithExt } from './utils'
 
 const todos = new Set([
   'wasmtime/dangling_symlink.wasm',
+  'wasmtime/fd_filestat_get.wasm',
   'wasmtime/fd_readdir.wasm',
   'wasmtime/file_unbuffered_write.wasm',
   'wasmtime/interesting_paths.wasm',
   'wasmtime/nofollow_errors.wasm',
   'wasmtime/path_exists.wasm',
   'wasmtime/path_link.wasm',
+  'wasmtime/path_open_read_without_rights.wasm',
   'wasmtime/path_symlink_trailing_slashes.wasm',
   'wasmtime/poll_oneoff_files.wasm',
   'wasmtime/poll_oneoff_stdio.wasm',
@@ -16,6 +18,7 @@ const todos = new Set([
   'wasmtime/symlink_create.wasm',
   'wasmtime/symlink_filestat.wasm',
   'wasmtime/symlink_loop.wasm',
+  'wasmtime/truncation_rights.wasm',
 ])
 
 await withEnv(async (fixture: TestEnv) => {
