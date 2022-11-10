@@ -1,10 +1,10 @@
-import { Environment, WASI, _FS } from '@cloudflare/workers-wasi'
+import { Environment, WASI, FS } from '@cloudflare/workers-wasi'
 
 export interface ExecOptions {
   args?: string[]
   asyncify: boolean
   env?: Environment
-  fs: _FS
+  fs: FS
   moduleName: string
   preopens: string[]
   returnOnExit: boolean

@@ -28,6 +28,11 @@ BENCHMARK_DST := $(OUTPUT_DIR)/benchmark
 BENCHMARK_SRC_TESTS := $(shell ls ./subjects/*.c)
 BENCHMARK_DST_TESTS := $(BENCHMARK_SRC_TESTS:$(BENCHMARK_SRC)/%.c=$(BENCHMARK_DST)/%.wasm)
 
+CASES_SRC := ./cases
+CASES_DST := $(OUTPUT_DIR)/cases
+CASES_SRC_TESTS := $(shell ls ./cases/*.c)
+CASES_DST_TESTS := $(CASES_SRC_TESTS:$(CASES_SRC)/%.c=$(CASES_DST)/%.wasm)
+
 $(WASMTIME_BIN)/%.wasm: $(wildcard $(WASI_TESTS_CRATE_PATH)/src/**)
 	cargo build --bin $* --target wasm32-wasi --manifest-path $(WASI_TESTS_CRATE_PATH)/Cargo.toml
 
@@ -46,12 +51,12 @@ node_modules: ./package.json ./package-lock.json ../package.json
 $(OUTPUT_DIR)/standalone.mjs: $(BENCHMARK_DST_TESTS) node_modules ./driver/*.ts
 	node benchmark-build.mjs
 
-run-tests: $(BUNDLE) $(OUTPUT_DIR)/wasm-table.ts node_modules $(OUTPUT_DIR)/standalone.mjs
+run-tests: $(BUNDLE) $(OUTPUT_DIR)/wasm-table.ts node_modules $(OUTPUT_DIR)/standalone.mjs $(CASES_DST_TESTS)
 	$(shell npm bin)/tsc -p ./tsconfig.json
 	JEST_JUNIT_OUTPUT_DIR=$(OUTPUT_DIR) OUTPUT_DIR=$(OUTPUT_DIR) NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 \
         $(shell npm bin)/jest --detectOpenHandles -i
 
-$(OUTPUT_DIR)/wasm-table.ts: $(WASI_TEST_SUITE_DST_TESTS) $(WASMTIME_DST_TESTS)
+$(OUTPUT_DIR)/wasm-table.ts: $(WASI_TEST_SUITE_DST_TESTS) $(WASMTIME_DST_TESTS) $(CASES_DST_TESTS)
 	mkdir -p $(@D)
 	node ./generate-wasm-table.mjs $(OUTPUT_DIR) > $@
 
@@ -79,3 +84,7 @@ $(BENCHMARK_DST)/%.wasm: $(WASI_SDK_PATH) $(WASM_OPT) $(BENCHMARK_SRC)/%.c
 	mkdir -p $(BENCHMARK_DST)
 	$(WASI_CC) $(WASI_CFLAGS) $(WASI_LDFLAGS) subjects/$*.c -o $(BENCHMARK_DST)/$*.wasm 
 	$(WASM_OPT) -g -O --asyncify $(BENCHMARK_DST)/$*.wasm -o $(BENCHMARK_DST)/$*.asyncify.wasm
+
+$(CASES_DST)/%.wasm: $(WASI_SDK_PATH) $(WASM_OPT) $(CASES_SRC)/%.c
+	mkdir -p $(CASES_DST)
+	$(WASI_CC) -g $(WASI_LDFLAGS) cases/$*.c -o $(CASES_DST)/$*.wasm 

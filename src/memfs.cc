@@ -1115,12 +1115,19 @@ int32_t EXPORT(initialize_internal)(int32_t arg0, int32_t arg1) {
     const auto* path = m.name.GetString();
     mkdirp(path);
 
+    const auto blob = m.value.GetObject();
+    REQUIRE(blob.HasMember("addr"));
+    REQUIRE(blob.HasMember("length"));
+
+    const auto addr = reinterpret_cast<char*>(blob.FindMember("addr")->value.GetUint64());
+    const auto length = blob.FindMember("length")->value.GetUint();
+
     lfs_file_t file;
     LFS_REQUIRE(lfs_file_open(&state.lfs, &file, path,
                               LFS_O_WRONLY | LFS_O_CREAT | LFS_O_EXCL));
-    LFS_REQUIRE(lfs_file_write(&state.lfs, &file, m.value.GetString(),
-                               m.value.GetStringLength()));
+    LFS_REQUIRE(lfs_file_write(&state.lfs, &file, addr, length));
     LFS_REQUIRE(lfs_file_close(&state.lfs, &file));
+    free(addr);
   }
 
   REQUIRE(state.fds.emplace(0, make_stream_fd(__WASI_RIGHTS_FD_READ)).second);

@@ -3,13 +3,15 @@ import wasm from './memfs.wasm'
 import * as wasi from './snapshot_preview1'
 
 /**
- * Used to initialize filesystem contents, currently used for testing with
- * existing WASI test suites
- * @internal
- *
+ * Used to initialize filesystem contents.
  */
-export interface _FS {
-  [filename: string]: string
+export interface FS {
+  [filename: string]: ArrayBuffer
+}
+
+interface PreopenBlob {
+  addr: number
+  length: number
 }
 
 export class MemFS {
@@ -18,7 +20,7 @@ export class MemFS {
   #instance: WebAssembly.Instance
   #hostMemory?: WebAssembly.Memory
 
-  constructor(preopens: Array<string>, fs: _FS) {
+  constructor(preopens: Array<string>, fs: FS) {
     this.#instance = new WebAssembly.Instance(wasm, {
       internal: {
         now_ms: () => Date.now(),
@@ -66,7 +68,13 @@ export class MemFS {
     const start = this.#instance.exports._start as Function
     start()
 
-    const data = new TextEncoder().encode(JSON.stringify({ preopens, fs }))
+    const allocatedFs = Object.entries(fs).reduce((prev, [path, bytes]) => {
+      const addr = this.#copyFrom(new Uint8Array(bytes))
+      return { ...prev, [path]: { addr, length: bytes.byteLength } }
+    }, {}) ?? {}
+    const data = new TextEncoder().encode(
+      JSON.stringify({ preopens, fs: allocatedFs})
+    )
 
     const initialize_internal = this.#instance.exports
       .initialize_internal as Function
