@@ -1,9 +1,9 @@
 {
-  "name": "@cloudflare/workers-wasi",
-  "version": "0.0.5",
+  "name": "notorca-workers-wasi",
+  "version": "0.0.6",
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "repository": "github:cloudflare/workers-wasi",
+  "repository": "github:notorca/workers-wasi",
   "files": [
     "dist",
     "src"
