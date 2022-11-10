@@ -71,8 +71,8 @@ $(BUNDLE): $(wildcard ../dist/**) $(wildcard ./driver/**) $(MEMFS_DST) $(OUTPUT_
 $(WASM_OPT):
 	@$(call color,"downloading binaryen")
 	mkdir -p $(@D)
-	curl -Lo binaryen.tar.gz https://github.com/WebAssembly/binaryen/releases/download/version_100/binaryen-version_100-x86_64-linux.tar.gz
-	echo '9057c8f3f0bbfec47a95985c8f0faad8cc2aa3932e94a7d6b705e245ed140e19  binaryen.tar.gz' | sha256sum -c
+	curl -Lo binaryen.tar.gz https://github.com/WebAssembly/binaryen/releases/download/version_110/binaryen-version_110-x86_64-linux.tar.gz
+	echo '978d794d3cd608b2c10573f7b7b2341a011a9804f4aae7efb608ed8751970faa  binaryen.tar.gz' | sha256sum -c
 	tar zxvf binaryen.tar.gz --strip-components=1 --touch -C ../build/binaryen
 	rm binaryen.tar.gz
 
@@ -82,7 +82,7 @@ export WASI_LDFLAGS := -flto -Wl,--allow-undefined
 
 $(BENCHMARK_DST)/%.wasm: $(WASI_SDK_PATH) $(WASM_OPT) $(BENCHMARK_SRC)/%.c
 	mkdir -p $(BENCHMARK_DST)
-	$(WASI_CC) $(WASI_CFLAGS) $(WASI_LDFLAGS) subjects/$*.c -o $(BENCHMARK_DST)/$*.wasm 
+	$(WASI_CC) $(WASI_CFLAGS) $(WASI_LDFLAGS) subjects/$*.c -o $(BENCHMARK_DST)/$*.wasm
 	$(WASM_OPT) -g -O --asyncify $(BENCHMARK_DST)/$*.wasm -o $(BENCHMARK_DST)/$*.asyncify.wasm
 
 $(CASES_DST)/%.wasm: $(WASI_SDK_PATH) $(WASM_OPT) $(CASES_SRC)/%.c
