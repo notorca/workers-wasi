@@ -3,7 +3,7 @@ RUN rustup target add wasm32-wasi
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -qq && \
-    apt-get install -qq --no-install-recommends -y make curl git && \
+    apt-get install -qq --no-install-recommends -y make curl git libxml2 && \
     rm -rf /var/lib/apt/lists/*
 
 # install nodejs
