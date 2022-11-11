@@ -1,6 +1,6 @@
 default: run-tests
 
-WASM_OPT   := ../build/binaryen/bin/wasm-opt
+WASM_OPT   := ../deps/binaryen/bin/wasm-opt
 WASI_SDK_PATH := ../deps/wasi-sdk-16.0
 WASI_SYSROOT  := $(abspath ${WASI_SDK_PATH}/share/wasi-sysroot)
 OUTPUT_DIR := ../build/test
@@ -67,14 +67,6 @@ $(MEMFS_DST): $(MEMFS_SRC)
 $(BUNDLE): $(wildcard ../dist/**) $(wildcard ./driver/**) $(MEMFS_DST) $(OUTPUT_DIR)/wasm-table.ts node_modules
 	mkdir -p $(@D)
 	$(shell npm bin)/esbuild --bundle ./driver/worker.ts --outfile=$@ --format=esm --log-level=warning --external:*.wasm
-
-$(WASM_OPT):
-	@$(call color,"downloading binaryen")
-	mkdir -p $(@D)
-	curl -Lo binaryen.tar.gz https://github.com/WebAssembly/binaryen/releases/download/version_110/binaryen-version_110-x86_64-linux.tar.gz
-	echo '978d794d3cd608b2c10573f7b7b2341a011a9804f4aae7efb608ed8751970faa  binaryen.tar.gz' | sha256sum -c
-	tar zxvf binaryen.tar.gz --strip-components=1 --touch -C ../build/binaryen
-	rm binaryen.tar.gz
 
 export WASI_CC      := $(abspath ${WASI_SDK_PATH}/bin/clang) -target wasm32-wasi --sysroot=${WASI_SYSROOT}
 export WASI_CFLAGS  := -Oz -flto

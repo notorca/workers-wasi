@@ -1,4 +1,5 @@
 build
 dist
 node_modules
-deps/wasi-sdk-*.0
+deps/wasi-sdk-*/
+deps/binaryen/

@@ -18,6 +18,7 @@ clean:
 
 WASI_SDK_PATH := ./deps/wasi-sdk-16.0
 WASI_SYSROOT  := $(abspath ${WASI_SDK_PATH}/share/wasi-sysroot)
+WASM_OPT_PATH := ./deps/binaryen
 
 export CC      := $(abspath ${WASI_SDK_PATH}/bin/clang) -target wasm32-wasi --sysroot=${WASI_SYSROOT}
 export CFLAGS  := -Oz -flto -I ./deps/rapidjson/include -I./deps/littlefs -fno-exceptions -include ./src/config.h -Wexit-time-destructors
@@ -42,7 +43,7 @@ build/obj/%.o: %.cc $(HEADERS) $(WASI_SDK_PATH)
 
 dist/memfs.wasm: $(WASM_OBJ)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(WASM_OBJ) -o $@
+	PATH=${PATH}:$(abspath ${WASM_OPT_PATH}/bin) $(CC) $(CFLAGS) $(LDFLAGS) $(WASM_OBJ) -o $@
 
 node_modules: ./package.json ./package-lock.json
 	npm install --no-audit --no-optional --no-fund --no-progress --quiet
@@ -53,9 +54,17 @@ dist/index.mjs: $(wildcard ./src/**) node_modules dist/memfs.wasm
 	$(shell npm bin)/tsc -p ./tsconfig.json
 	$(shell npm bin)/esbuild --bundle ./src/index.ts --outfile=$@ --format=esm --log-level=warning --external:*.wasm
 
-$(WASI_SDK_PATH):
+$(WASI_SDK_PATH): $(WASM_OPT_PATH)
 	mkdir -p $(@D)
 	curl -sLo wasi-sdk.tar.gz https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-16/wasi-sdk-16.0-linux.tar.gz
 	echo '10df3418485e60b9283c1132102f8d3ca34b4fbe8c4649e30282ee84fe42d788 wasi-sdk.tar.gz' | sha256sum -c
 	tar zxf wasi-sdk.tar.gz --touch -C deps
 	rm wasi-sdk.tar.gz
+
+$(WASM_OPT_PATH):
+	@$(call color,"downloading binaryen")
+	mkdir -p $(@)
+	curl -Lo binaryen.tar.gz https://github.com/WebAssembly/binaryen/releases/download/version_110/binaryen-version_110-x86_64-linux.tar.gz
+	echo '978d794d3cd608b2c10573f7b7b2341a011a9804f4aae7efb608ed8751970faa binaryen.tar.gz' | sha256sum -c
+	tar zxvf binaryen.tar.gz --strip-components=1 --touch -C ./deps/binaryen
+	rm binaryen.tar.gz
